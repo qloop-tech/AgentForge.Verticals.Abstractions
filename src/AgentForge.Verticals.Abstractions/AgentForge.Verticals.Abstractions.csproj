@@ -9,10 +9,13 @@
     <Authors>QLoop Technologies</Authors>
     <Company>QLoop Technologies</Company>
     <PackageProjectUrl>https://github.com/qloop-tech/AgentForge.Verticals.Abstractions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/qloop-tech/AgentForge.Verticals.Abstractions</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <Description>Contracts for building external AgentForge vertical plugins.</Description>
     <PackageTags>agentforge;vertical;plugin;mcp</PackageTags>
-    <PackageOutputPath>/Users/muhammadafzalqureshi/Projects/AgentForge.LocalPackages</PackageOutputPath>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>

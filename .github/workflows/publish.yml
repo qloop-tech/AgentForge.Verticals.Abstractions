@@ -1,0 +1,66 @@
+name: Publish NuGet Package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to nuget.org
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Resolve package version
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME}"
+
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Release tag '$tag' must use vX.Y.Z or vX.Y.Z-prerelease format." >&2
+            exit 1
+          fi
+
+          echo "PACKAGE_VERSION=${tag#v}" >> "$GITHUB_ENV"
+
+      - name: Restore
+        run: dotnet restore AgentForge.Verticals.Abstractions.slnx
+
+      - name: Build
+        run: dotnet build AgentForge.Verticals.Abstractions.slnx --configuration Release --no-restore
+
+      - name: Pack
+        run: >
+          dotnet pack
+          src/AgentForge.Verticals.Abstractions/AgentForge.Verticals.Abstractions.csproj
+          --configuration Release
+          --no-build
+          --output artifacts/packages
+          -p:PackageVersion=${{ env.PACKAGE_VERSION }}
+
+      - name: Login to NuGet
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: qloop-tech
+
+      - name: Publish
+        run: >
+          dotnet nuget push "artifacts/packages/*.nupkg"
+          --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}"
+          --source "https://api.nuget.org/v3/index.json"
+          --skip-duplicate
